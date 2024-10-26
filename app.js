@@ -21,12 +21,13 @@ app.use(express.json());
 
 connectToDatabase();
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Adjust this as needed
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+const allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173']; // Add other allowed origins as needed
+
+app.use(cors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 // Routes
 app.use('/api/content', contentRoutes);
 
