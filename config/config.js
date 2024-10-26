@@ -1,25 +1,23 @@
-const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const contentRoutes = require('./routes/contentRoutes');
 
-dotenv.config();
+let isConnected; // Track the connection status
 
-const app = express();
+const connectToDatabase = async () => {
+  if (isConnected) {
+    console.log('=> using existing MongoDB connection');
+    return;
+  }
 
-// Middleware to parse JSON
-app.use(express.json());
+  console.log('=> using new MongoDB connection');
+  await mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }).then(() => console.log('MongoDB connected successfully!'))
+    .catch((err) => console.log('MongoDB connection error:', err));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected'))
-.catch((err) => console.log(err));
+  ;
 
-// Routes
-app.use('/api/content', contentRoutes);
+  isConnected = mongoose.connection.readyState;
+};
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+module.exports = connectToDatabase;
